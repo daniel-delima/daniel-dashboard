@@ -126,6 +126,15 @@ function redirectUriFor() {
   return `https://${CANONICAL_HOST}/api/fitbit/callback`;
 }
 
+// True if this request did NOT come in on the canonical host — e.g. Daniel followed a Vercel
+// per-deployment link instead of the stable URL. login.js uses this to bounce over to the
+// canonical host *before* setting the CSRF state cookie, so the cookie that gets set and the
+// cookie the callback checks are always on the same origin (cookies don't cross hostnames,
+// even between aliases of the same deployment).
+function isNonCanonicalHost(req) {
+  return req.headers.host !== CANONICAL_HOST;
+}
+
 // YYYY-MM-DD in a given timezone offset (minutes), defaulting to UTC — good enough for
 // "today"/"yesterday" boundaries without pulling in a date library.
 function isoDate(date) {
@@ -145,5 +154,7 @@ module.exports = {
   clientCreds,
   refreshAccessToken,
   redirectUriFor,
+  isNonCanonicalHost,
+  CANONICAL_HOST,
   isoDate,
 };

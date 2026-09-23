@@ -2,9 +2,18 @@
 // own login page — Fitbit's Web API is being retired, see _lib.js).
 
 const crypto = require("crypto");
-const { redirectUriFor, clientCreds, GOOGLE_AUTH_URL, SCOPES } = require("./_lib");
+const { redirectUriFor, clientCreds, GOOGLE_AUTH_URL, SCOPES, isNonCanonicalHost, CANONICAL_HOST } = require("./_lib");
 
 module.exports = (req, res) => {
+  // Bounce to the canonical host first if we're not already on it — otherwise the CSRF state
+  // cookie we're about to set would live on the wrong origin and the callback (which always
+  // runs on the canonical host, see redirectUriFor) would never see it.
+  if (isNonCanonicalHost(req)) {
+    res.writeHead(302, { Location: `https://${CANONICAL_HOST}/api/fitbit/login` });
+    res.end();
+    return;
+  }
+
   let clientId;
   try {
     ({ id: clientId } = clientCreds());
