@@ -1,20 +1,33 @@
 // GET /api/fitbit/summary — called by the dashboard's Fitness tab. Returns today's steps,
-// sleep, and resting heart rate, or { connected: false } if Fitbit hasn't been linked yet.
+// last night's sleep, and today's resting heart rate, or { connected: false } if not linked.
 //
-// Every call refreshes the access token first (Fitbit access tokens are short-lived, ~8h)
-// and Fitbit rotates the refresh token each time one is used, so the stored cookie gets
-// re-saved with the new one on every request — an old refresh token stops working the
-// moment a newer one has been issued.
+// Endpoints/fields below were confirmed directly against the Google Health API reference
+// (developers.google.com/health/reference/rest/v4) on 2026-09-23 — this is a brand new API
+// (replacing the retiring Fitbit Web API), so nothing here could be verified against prior
+// knowledge, only the live docs.
+//
+// Known limitation: "today" is computed from the server's UTC clock, not Daniel's actual
+// timezone — close enough for now, but could be off by a few hours right around midnight UK
+// time. Revisit if that turns out to matter in practice.
 
-const { getStoredRefreshToken, setRefreshTokenCookie, clearRefreshTokenCookie, refreshAccessToken } = require("./_lib");
+const { getStoredRefreshToken, clearRefreshTokenCookie, refreshAccessToken, HEALTH_API_BASE } = require("./_lib");
 
-async function fitbitGet(path, accessToken) {
-  const response = await fetch(`https://api.fitbit.com${path}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+function civilDate(d) {
+  return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() };
+}
+
+async function healthApi(path, accessToken, options = {}) {
+  const response = await fetch(`${HEALTH_API_BASE}${path}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...options.headers,
+    },
   });
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Fitbit API ${path} failed (${response.status}): ${body}`);
+    throw new Error(`Google Health API ${path} failed (${response.status}): ${body}`);
   }
   return response.json();
 }
@@ -27,30 +40,46 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const tokens = await refreshAccessToken(storedRefreshToken);
-    setRefreshTokenCookie(res, tokens.refresh_token);
+    const { access_token: accessToken } = await refreshAccessToken(storedRefreshToken);
 
-    const [activity, sleep, heart] = await Promise.all([
-      fitbitGet("/1/user/-/activities/date/today.json", tokens.access_token),
-      fitbitGet("/1.2/user/-/sleep/date/today.json", tokens.access_token),
-      fitbitGet("/1/user/-/activities/heart/date/today/1d.json", tokens.access_token),
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    const todayStr = today.toISOString().slice(0, 10);
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+    const [stepsData, sleepData, heartData] = await Promise.all([
+      healthApi("/users/me/dataTypes/steps/dataPoints:dailyRollUp", accessToken, {
+        method: "POST",
+        body: JSON.stringify({
+          range: { start: { date: civilDate(today) }, end: { date: civilDate(tomorrow) } },
+          windowSizeDays: 1,
+        }),
+      }),
+      healthApi(
+        `/users/me/dataTypes/sleep/dataPoints?pageSize=5&filter=${encodeURIComponent(
+          `sleep.interval.civil_end_time >= "${todayStr}" AND sleep.interval.civil_end_time < "${tomorrowStr}"`
+        )}`,
+        accessToken
+      ),
+      healthApi(
+        `/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${encodeURIComponent(
+          `dailyRestingHeartRate.date >= "${todayStr}" AND dailyRestingHeartRate.date < "${tomorrowStr}"`
+        )}`,
+        accessToken
+      ),
     ]);
 
-    const restingHeartRate = heart["activities-heart"]?.[0]?.value?.restingHeartRate ?? null;
-    const sleepMinutes = sleep.summary?.totalMinutesAsleep ?? null;
+    const steps = Number(stepsData.rollupDataPoints?.[0]?.steps?.countSum ?? 0);
+    const minutesAsleep = sleepData.dataPoints?.[0]?.sleep?.summary?.minutesAsleep;
+    const sleepHours = minutesAsleep !== undefined ? Math.round((Number(minutesAsleep) / 60) * 10) / 10 : null;
+    const restingHeartRateRaw = heartData.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute;
+    const restingHeartRate = restingHeartRateRaw !== undefined ? Number(restingHeartRateRaw) : null;
 
-    res.status(200).json({
-      connected: true,
-      steps: activity.summary?.steps ?? 0,
-      caloriesOut: activity.summary?.caloriesOut ?? 0,
-      activeMinutes: (activity.summary?.fairlyActiveMinutes ?? 0) + (activity.summary?.veryActiveMinutes ?? 0),
-      sleepHours: sleepMinutes !== null ? Math.round((sleepMinutes / 60) * 10) / 10 : null,
-      restingHeartRate,
-    });
+    res.status(200).json({ connected: true, steps, sleepHours, restingHeartRate });
   } catch (err) {
-    // A refresh failure usually means the token was revoked (e.g. Daniel disconnected the
-    // app from Fitbit's own settings) — clear the dead cookie so the UI offers to reconnect
-    // instead of erroring forever.
+    // Most failures here mean the token expired (7-day Testing-mode limit) or access was
+    // revoked — clear the dead cookie so the UI offers to reconnect instead of erroring forever.
     clearRefreshTokenCookie(res);
     res.status(502).json({ connected: false, error: err.message });
   }

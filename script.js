@@ -592,7 +592,6 @@ async function loadFitness() {
     document.getElementById("fit-steps").textContent = data.steps.toLocaleString();
     document.getElementById("fit-sleep").textContent = data.sleepHours !== null ? data.sleepHours + "h" : "–";
     document.getElementById("fit-hr").textContent = data.restingHeartRate !== null ? data.restingHeartRate : "–";
-    document.getElementById("fit-active").textContent = data.activeMinutes;
     stats.hidden = false;
   } catch (e) {
     errorMessage.textContent = "Couldn't reach the server — check your internet connection.";

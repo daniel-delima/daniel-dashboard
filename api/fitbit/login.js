@@ -1,32 +1,34 @@
-// GET /api/fitbit/login — starts the Fitbit OAuth flow. The dashboard's "Connect Fitbit"
-// button just links here directly (a normal navigation, not a fetch), since this needs to
-// redirect the whole page to Fitbit's own login/consent screen.
+// GET /api/fitbit/login — starts the Google Health API OAuth flow (Google login, not Fitbit's
+// own login page — Fitbit's Web API is being retired, see _lib.js).
 
 const crypto = require("crypto");
-const { redirectUriFor } = require("./_lib");
+const { redirectUriFor, clientCreds, GOOGLE_AUTH_URL, SCOPES } = require("./_lib");
 
 module.exports = (req, res) => {
-  const clientId = process.env.FITBIT_CLIENT_ID;
-  if (!clientId) {
-    res.status(500).send("Server is missing FITBIT_CLIENT_ID — set it in the Vercel project's environment variables.");
+  let clientId;
+  try {
+    ({ id: clientId } = clientCreds());
+  } catch (e) {
+    res.status(500).send("Server is missing GOOGLE_HEALTH_CLIENT_ID — set it in the Vercel project's environment variables.");
     return;
   }
 
-  // CSRF guard: a random value we can check matches when Fitbit redirects back.
   const state = crypto.randomBytes(16).toString("hex");
   res.setHeader(
     "Set-Cookie",
-    `fb_state=${state}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=600`
+    `gh_state=${state}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=600`
   );
 
   const params = new URLSearchParams({
-    response_type: "code",
     client_id: clientId,
     redirect_uri: redirectUriFor(req),
-    scope: "activity heartrate sleep profile",
+    response_type: "code",
+    access_type: "offline", // required to get a refresh token back
+    prompt: "consent",      // forces a refresh token every time (needed since Testing-mode tokens expire weekly)
+    scope: SCOPES,
     state,
   });
 
-  res.writeHead(302, { Location: `https://www.fitbit.com/oauth2/authorize?${params.toString()}` });
+  res.writeHead(302, { Location: `${GOOGLE_AUTH_URL}?${params.toString()}` });
   res.end();
 };
