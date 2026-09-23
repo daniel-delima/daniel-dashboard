@@ -570,10 +570,14 @@ async function loadFitness() {
   const errorBox = document.getElementById("fitness-error");
   const errorMessage = document.getElementById("fitness-error-message");
   const stats = document.getElementById("fitness-stats");
+  const refreshBtn = document.getElementById("fitness-refresh-btn");
+  const updatedEl = document.getElementById("fitness-updated");
 
   disconnected.hidden = true;
   errorBox.hidden = true;
   stats.hidden = true;
+  refreshBtn.disabled = true;
+  refreshBtn.textContent = "Refreshing…";
 
   try {
     const response = await fetch("/api/fitbit/summary");
@@ -599,10 +603,15 @@ async function loadFitness() {
   } catch (e) {
     errorMessage.textContent = "Couldn't reach the server — check your internet connection.";
     errorBox.hidden = false;
+  } finally {
+    refreshBtn.disabled = false;
+    refreshBtn.textContent = "Refresh";
+    updatedEl.textContent = "Last checked " + new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
   }
 }
 
 document.querySelector('.nav-btn[data-view="fitness"]').addEventListener("click", loadFitness);
+document.getElementById("fitness-refresh-btn").addEventListener("click", loadFitness);
 
 // If Fitbit just redirected back here after connecting, land straight on the Fitness tab.
 if (new URLSearchParams(window.location.search).get("fitbit") === "connected") {

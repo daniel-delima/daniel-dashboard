@@ -460,6 +460,23 @@ thead .today-col {
 
 /* Fitness */
 
+.fitness-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.fitness-header .clear-notes-btn {
+  margin-left: 0;
+}
+
+.fitness-header .clear-notes-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .fitness-connect {
   text-align: center;
   padding: 60px 20px;
