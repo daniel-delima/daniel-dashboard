@@ -19,6 +19,13 @@
   box-sizing: border-box;
 }
 
+/* Without this, elements with their own `display` rule (e.g. .fitness-grid's `display: grid`)
+   ignore the `hidden` attribute — same specificity, and the stylesheet loads after the
+   browser's default one, so the later rule wins. This forces `hidden` to always win. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
