@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daniel's Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="greeting">
+      <h1 id="greeting">Hey, Daniel</h1>
+      <p id="datetime" class="subtle"></p>
+    </div>
+
+    <!--
+      Nav: one button per section. To add a new section:
+      1. Add a <button class="nav-btn" data-view="yourViewId"> here
+      2. Add a <section class="view" id="view-yourViewId"> below
+      script.js handles the show/hide automatically — nothing else to touch.
+    -->
+    <nav class="nav">
+      <button class="nav-btn active" data-view="home">Home</button>
+      <button class="nav-btn" data-view="timetable">Timetable</button>
+      <button class="nav-btn" data-view="timesheet">Timesheet</button>
+      <button class="nav-btn" data-view="fitness">Fitness</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- HOME VIEW -->
+    <section class="view active" id="view-home">
+
+      <div class="orb-wrap">
+        <canvas id="orb-canvas" width="640" height="640"></canvas>
+      </div>
+
+    </section>
+
+    <!-- TIMETABLE VIEW -->
+    <section class="view" id="view-timetable">
+
+      <div class="pattern-toggle">
+        <button class="pattern-btn active" data-pattern="A">Week A</button>
+        <button class="pattern-btn" data-pattern="B">Week B</button>
+        <button class="clear-notes-btn" id="clear-notes-btn">Clear notes</button>
+      </div>
+
+      <div class="timetable-grid" id="timetable-grid">
+        <!-- filled by script.js -->
+      </div>
+
+    </section>
+
+    <!-- TIMESHEET VIEW -->
+    <section class="view" id="view-timesheet">
+
+      <div class="stat-tile">
+        <div class="stat-value" id="ts-total-pay">£0.00</div>
+        <div class="stat-sub" id="ts-total-hours">0 hours · £12.50/hr</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-wrap" id="ts-chart">
+          <!-- filled by script.js -->
+        </div>
+        <div class="chart-tooltip" id="ts-tooltip"></div>
+      </div>
+
+      <p class="subtle chart-source">Source: Time Sheet.md in Daniel's Obsidian vault — a manual snapshot, not live-synced. Ask Claude to refresh it after new entries go in.</p>
+
+    </section>
+
+    <!-- FITNESS VIEW -->
+    <section class="view" id="view-fitness">
+
+      <div id="fitness-disconnected" class="fitness-connect">
+        <p class="fitness-connect-title">Connect your Fitbit</p>
+        <p class="subtle">Pulls today's steps, sleep and resting heart rate straight from your account.</p>
+        <a class="pattern-btn" href="/api/fitbit/login">Connect Fitbit</a>
+      </div>
+
+      <div id="fitness-error" class="fitness-connect" hidden>
+        <p class="fitness-connect-title">Couldn't reach Fitbit</p>
+        <p class="subtle" id="fitness-error-message">Check your internet connection and try again.</p>
+        <a class="pattern-btn" href="/api/fitbit/login">Reconnect Fitbit</a>
+      </div>
+
+      <div id="fitness-stats" class="fitness-grid" hidden>
+        <div class="stat-tile">
+          <div class="stat-value" id="fit-steps">0</div>
+          <div class="stat-sub">Steps today</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value" id="fit-sleep">0h</div>
+          <div class="stat-sub">Sleep last night</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value" id="fit-hr">–</div>
+          <div class="stat-sub">Resting heart rate</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value" id="fit-active">0</div>
+          <div class="stat-sub">Active minutes today</div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
