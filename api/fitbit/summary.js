@@ -64,7 +64,7 @@ module.exports = async (req, res) => {
       ),
       healthApi(
         `/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${encodeURIComponent(
-          `dailyRestingHeartRate.date >= "${todayStr}" AND dailyRestingHeartRate.date < "${tomorrowStr}"`
+          `daily_resting_heart_rate.date >= "${todayStr}" AND daily_resting_heart_rate.date < "${tomorrowStr}"`
         )}`,
         accessToken
       ),
