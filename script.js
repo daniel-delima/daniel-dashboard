@@ -579,13 +579,16 @@ async function loadFitness() {
     const response = await fetch("/api/fitbit/summary");
     const data = await response.json();
 
+    if (data.error) {
+      // Could be a dead login (connected: false) or just a data-query hiccup while still
+      // logged in (connected: true) — either way, show the error rather than the data.
+      errorMessage.textContent = "Fitbit said: " + data.error;
+      errorBox.hidden = false;
+      return;
+    }
+
     if (!data.connected) {
-      if (data.error) {
-        errorMessage.textContent = "Fitbit said: " + data.error;
-        errorBox.hidden = false;
-      } else {
-        disconnected.hidden = false;
-      }
+      disconnected.hidden = false;
       return;
     }
 

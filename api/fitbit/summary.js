@@ -39,9 +39,18 @@ module.exports = async (req, res) => {
     return;
   }
 
+  let accessToken;
   try {
-    const { access_token: accessToken } = await refreshAccessToken(storedRefreshToken);
+    ({ access_token: accessToken } = await refreshAccessToken(storedRefreshToken));
+  } catch (err) {
+    // This specifically means the login itself is dead (expired/revoked) — only here is it
+    // correct to clear the cookie and send the user back to "Connect Fitbit".
+    clearRefreshTokenCookie(res);
+    res.status(502).json({ connected: false, error: err.message });
+    return;
+  }
 
+  try {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
@@ -78,9 +87,9 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ connected: true, steps, sleepHours, restingHeartRate });
   } catch (err) {
-    // Most failures here mean the token expired (7-day Testing-mode limit) or access was
-    // revoked — clear the dead cookie so the UI offers to reconnect instead of erroring forever.
-    clearRefreshTokenCookie(res);
-    res.status(502).json({ connected: false, error: err.message });
+    // A data-query failure (bad filter, transient API error, etc.) — the login itself is
+    // still good, so don't clear the cookie here, just report the error and let the user
+    // retry without having to reconnect.
+    res.status(502).json({ connected: true, error: err.message });
   }
 };
