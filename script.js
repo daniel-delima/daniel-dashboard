@@ -597,8 +597,14 @@ async function loadFitness() {
     }
 
     document.getElementById("fit-steps").textContent = data.steps.toLocaleString();
+    document.getElementById("fit-week-steps").textContent = data.weeklySteps.toLocaleString();
+    document.getElementById("fit-distance").textContent = data.distanceKm;
+    document.getElementById("fit-floors").textContent = data.floors;
+    document.getElementById("fit-azm").textContent = data.activeZoneMinutes;
     document.getElementById("fit-sleep").textContent = data.sleepHours !== null ? data.sleepHours + "h" : "–";
+    document.getElementById("fit-sleep-eff").textContent = data.sleepEfficiency !== null ? data.sleepEfficiency + "%" : "–";
     document.getElementById("fit-hr").textContent = data.restingHeartRate !== null ? data.restingHeartRate : "–";
+    document.getElementById("fit-hrv").textContent = data.hrv !== null ? data.hrv + " ms" : "–";
     stats.hidden = false;
   } catch (e) {
     errorMessage.textContent = "Couldn't reach the server — check your internet connection.";

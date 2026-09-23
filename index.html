@@ -83,7 +83,7 @@
 
       <div id="fitness-disconnected" class="fitness-connect">
         <p class="fitness-connect-title">Connect your Fitbit</p>
-        <p class="subtle">Pulls today's steps, sleep and resting heart rate straight from your account.</p>
+        <p class="subtle">Pulls your steps, distance, floors, active zone minutes, sleep, resting heart rate and HRV straight from your account.</p>
         <a class="pattern-btn" href="/api/fitbit/login">Connect Fitbit</a>
       </div>
 
@@ -99,12 +99,36 @@
           <div class="stat-sub">Steps today</div>
         </div>
         <div class="stat-tile">
+          <div class="stat-value" id="fit-week-steps">0</div>
+          <div class="stat-sub">Steps this week (Mon-Sun)</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value" id="fit-distance">0</div>
+          <div class="stat-sub">Distance today (km)</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value" id="fit-floors">0</div>
+          <div class="stat-sub">Floors today</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value" id="fit-azm">0</div>
+          <div class="stat-sub">Active zone minutes</div>
+        </div>
+        <div class="stat-tile">
           <div class="stat-value" id="fit-sleep">0h</div>
           <div class="stat-sub">Sleep last night</div>
         </div>
         <div class="stat-tile">
+          <div class="stat-value" id="fit-sleep-eff">–</div>
+          <div class="stat-sub">Sleep efficiency</div>
+        </div>
+        <div class="stat-tile">
           <div class="stat-value" id="fit-hr">–</div>
           <div class="stat-sub">Resting heart rate</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value" id="fit-hrv">–</div>
+          <div class="stat-sub">Heart rate variability</div>
         </div>
       </div>
 
