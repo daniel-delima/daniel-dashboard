@@ -21,7 +21,7 @@ module.exports = (req, res) => {
 
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: redirectUriFor(req),
+    redirect_uri: redirectUriFor(),
     response_type: "code",
     access_type: "offline", // required to get a refresh token back
     prompt: "consent",      // forces a refresh token every time (needed since Testing-mode tokens expire weekly)

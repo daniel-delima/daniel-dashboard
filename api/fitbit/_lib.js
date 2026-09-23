@@ -114,9 +114,16 @@ async function refreshAccessToken(refreshToken) {
   return response.json(); // { access_token, expires_in, scope, token_type }
 }
 
-function redirectUriFor(req) {
-  const proto = req.headers["x-forwarded-proto"] || "https";
-  return `${proto}://${req.headers.host}/api/fitbit/callback`;
+// Fixed, not derived from the request host — Vercel serves the same deployment from several
+// URLs (the stable production domain, a per-deployment alias with a random hash, a git-branch
+// alias, ...), and Google only accepts the exact redirect URI registered in Cloud Console.
+// Deriving this from req.headers.host broke as soon as Daniel visited via a non-canonical
+// alias (e.g. the Vercel dashboard's "Visit" button, which can land on the per-deployment
+// URL). Keep this in sync with the "Authorized redirect URIs" entry in Google Cloud Console.
+const CANONICAL_HOST = "daniel-dashboard-orpin.vercel.app";
+
+function redirectUriFor() {
+  return `https://${CANONICAL_HOST}/api/fitbit/callback`;
 }
 
 // YYYY-MM-DD in a given timezone offset (minutes), defaulting to UTC — good enough for

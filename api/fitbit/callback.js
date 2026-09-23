@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
         client_id: id,
         client_secret: secret,
         code,
-        redirect_uri: redirectUriFor(req),
+        redirect_uri: redirectUriFor(),
         grant_type: "authorization_code",
       }),
     });
