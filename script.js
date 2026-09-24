@@ -618,6 +618,7 @@ async function loadFitness() {
 
 document.querySelector('.nav-btn[data-view="fitness"]').addEventListener("click", loadFitness);
 document.getElementById("fitness-refresh-btn").addEventListener("click", loadFitness);
+document.getElementById("fitness-try-again-btn").addEventListener("click", loadFitness);
 
 // If Fitbit just redirected back here after connecting, land straight on the Fitness tab.
 if (new URLSearchParams(window.location.search).get("fitbit") === "connected") {

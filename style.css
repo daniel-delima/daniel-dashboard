@@ -498,6 +498,19 @@ thead .today-col {
   text-decoration: none;
 }
 
+.fitness-error-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fitness-error-actions .clear-notes-btn {
+  margin-left: 0;
+  text-decoration: none;
+}
+
 .fitness-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
