@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — Daniel's Dashboard</title>
+<style>
+  :root {
+    --bg: #05070c;
+    --surface: rgba(28, 34, 50, 0.55);
+    --border: rgba(143, 171, 255, 0.18);
+    --border-strong: rgba(143, 171, 255, 0.4);
+    --text: #f4f6fa;
+    --text-subtle: #aab4c8;
+    --accent: #5aa0ff;
+    --accent-bright: #d6e8ff;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(ellipse 1100px 650px at 18% -10%, rgba(90, 160, 255, 0.16), transparent 60%),
+      radial-gradient(ellipse 900px 550px at 100% 15%, rgba(90, 160, 255, 0.10), transparent 55%),
+      radial-gradient(ellipse 1000px 650px at 50% 115%, rgba(90, 160, 255, 0.08), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Inter, system-ui, sans-serif;
+    padding: 20px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 340px;
+    background: linear-gradient(160deg, rgba(30, 36, 52, 0.72), rgba(16, 20, 30, 0.6)) padding-box,
+                linear-gradient(160deg, rgba(90, 160, 255, 0.45), rgba(90, 160, 255, 0.05)) border-box;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 50px rgba(90, 160, 255, 0.07);
+    padding: 32px 28px;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0 0 6px;
+    background: linear-gradient(135deg, #ffffff 10%, #c3d6ff 55%, var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  p {
+    color: var(--text-subtle);
+    font-size: 0.9rem;
+    margin: 0 0 24px;
+  }
+
+  input[type="password"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 1rem;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+
+  input[type="password"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  button {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(90, 160, 255, 0.32), rgba(90, 160, 255, 0.08));
+    border: 1px solid var(--border-strong);
+    color: var(--accent-bright);
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    box-shadow: 0 0 20px rgba(90, 160, 255, 0.3);
+  }
+
+  .error {
+    color: #ff8a8a;
+    font-size: 0.85rem;
+    margin: -6px 0 14px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Daniel's Dashboard</h1>
+    <p>Enter the password to continue.</p>
+    <form method="POST" action="/api/site-login">
+      <p class="error" id="error-msg" hidden>Wrong password — try again.</p>
+      <input type="password" name="password" placeholder="Password" autofocus required>
+      <button type="submit">Unlock</button>
+    </form>
+  </div>
+
+  <script>
+    if (new URLSearchParams(window.location.search).get("error") === "1") {
+      document.getElementById("error-msg").hidden = false;
+    }
+  </script>
+
+</body>
+</html>
