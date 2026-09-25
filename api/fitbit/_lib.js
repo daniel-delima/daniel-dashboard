@@ -120,7 +120,7 @@ async function refreshAccessToken(refreshToken) {
 // Deriving this from req.headers.host broke as soon as Daniel visited via a non-canonical
 // alias (e.g. the Vercel dashboard's "Visit" button, which can land on the per-deployment
 // URL). Keep this in sync with the "Authorized redirect URIs" entry in Google Cloud Console.
-const CANONICAL_HOST = "daniel-dashboard-orpin.vercel.app";
+const CANONICAL_HOST = "daniel-dashboard-8352464.vercel.app";
 
 function redirectUriFor() {
   return `https://${CANONICAL_HOST}/api/fitbit/callback`;
