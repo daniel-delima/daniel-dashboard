@@ -109,16 +109,25 @@
   <div class="card">
     <h1>Daniel's Dashboard</h1>
     <p>Enter the password to continue.</p>
-    <form method="POST" action="/api/site-login">
-      <p class="error" id="error-msg" hidden>Wrong password — try again.</p>
-      <input type="password" name="password" placeholder="Password" autofocus required>
-      <button type="submit">Unlock</button>
+    <form method="POST" action="/api/site-login" id="login-form">
+      <p class="error" id="error-msg" hidden></p>
+      <input type="password" name="password" placeholder="Password" id="password-input" autofocus required>
+      <button type="submit" id="submit-btn">Unlock</button>
     </form>
   </div>
 
   <script>
-    if (new URLSearchParams(window.location.search).get("error") === "1") {
-      document.getElementById("error-msg").hidden = false;
+    const params = new URLSearchParams(window.location.search);
+    const errorEl = document.getElementById("error-msg");
+
+    if (params.get("error") === "locked") {
+      errorEl.textContent = `Too many wrong attempts — try again in ${params.get("mins") || 15} minutes.`;
+      errorEl.hidden = false;
+      document.getElementById("password-input").disabled = true;
+      document.getElementById("submit-btn").disabled = true;
+    } else if (params.get("error") === "1") {
+      errorEl.textContent = "Wrong password — try again.";
+      errorEl.hidden = false;
     }
   </script>
 
