@@ -66,7 +66,9 @@ module.exports = async (req, res) => {
     .digest("hex");
 
   res.setHeader("Set-Cookie", [
-    `site_auth=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=2592000`, // 30 days
+    // No Max-Age — a session cookie, cleared when the browser fully closes, so the password
+    // is asked for again each new browsing session instead of being remembered for weeks.
+    `site_auth=${token}; HttpOnly; Secure; SameSite=Lax; Path=/`,
     "site_fail=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0",
     "site_lock_until=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0",
   ]);
